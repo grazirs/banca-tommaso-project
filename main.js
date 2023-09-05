@@ -4,7 +4,9 @@ const BASE_URL = 'https://tommaso-bank.netlify.app/.netlify/functions/cards';
 const VISA_ICON = './assets/visa.svg';
 const MASTERCARD_ICON = './assets/mastercard.svg';
 let selectedCardID;
+let firstCard;
 let cards = [];
+let transactions = [];
 
 
 async function getCards() {
@@ -15,7 +17,7 @@ async function getCards() {
 
 function buildExpandedCard(card) {
   const updateDate = new Date(card.lastUpdateAt).toLocaleDateString();
-  const expirationDate = new Date(card.expiration).toLocaleDateString({ month: '2-digit', year: 'numeric' });
+  const expirationDate = new Date(card.expiration).toLocaleDateString("en-GB", { month: '2-digit', year: 'numeric' });
   const circuitCard = card.circuit === 'MASTERCARD' ? MASTERCARD_ICON : VISA_ICON;
   const maskedNumber = card.number.substr(-4);
 
@@ -54,6 +56,7 @@ function buildExpandedCard(card) {
 
   `
 }
+
 function buildNotExpandedCard(card) {
   const circuitCard = card.circuit === 'MASTERCARD' ? MASTERCARD_ICON : VISA_ICON;
   const maskedNumber = card.number.substr(-4);
@@ -97,9 +100,14 @@ function buildNotExpandedCard(card) {
 window.addEventListener('load', async function () {
   cards = await getCards();
 
-  selectedCardID = cards[0].id
+
+  firstCard = cards[0];
+  selectedCardID = firstCard.id;;
 
   renderCards();
+
+  transactions = await getTransactions(selectedCardID);
+  renderTransactions(transactions, firstCard);
 });
 
 function renderCards() {
@@ -114,7 +122,45 @@ function renderCards() {
   });
 }
 
-function onClickCard(card) {
+async function onClickCard(card) {
   selectedCardID = card.id;
   renderCards()
+
+  transactions = await getTransactions(selectedCardID);
+  renderTransactions(transactions, card);
+}
+
+async function getTransactions(selectedCardID){
+  const response = await fetch(`${BASE_URL}/transactions/${selectedCardID}`)
+  const data = await response.json();
+  return data;
+}
+
+function buildTransactions(transaction, card) {
+  const allDescription = transaction.description;
+  const indexAt = allDescription.indexOf("at");
+  const indexUsing = allDescription.indexOf("using", indexAt);
+  const place = allDescription.slice(indexAt + 3, indexUsing).trim();
+  const date = new Date(card.lastUpdateAt).toLocaleDateString();
+  const cardNumber = card.number.substr(-4);
+
+  return `
+  <div class="description-content">
+    <div class="description">
+    <span>${place}</span>
+    <span class="description-tag">${card.name} ... ${cardNumber}</span>
+  </div>
+    <span class="date">${date}</span>
+    <span class="amount">${transaction.amount} €</span>
+  </div>
+  `;
+}
+
+async function renderTransactions(transactions, card) {
+  const transactionsContainer = document.querySelector('#description-content');
+  transactionsContainer.innerHTML = '';
+
+  transactions.forEach((transaction) => {
+    const builtTransaction = buildTransactions(transaction, card);
+    return  transactionsContainer.insertAdjacentHTML('beforeend', builtTransaction)})
 }
