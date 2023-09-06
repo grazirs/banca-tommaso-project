@@ -6,9 +6,9 @@
   --primary-color: #293540;
   --secondary-color: #ffffffbf;
   --tertiary-color: #29354066;
-  --quartenary-color: #293540CC;
+  --quartenary-color: #293540cc;
 
-  --error-color:  #E65454;
+  --error-color: #e65454;
 
   --primary-border: 1px solid #2a355033;
 
@@ -81,7 +81,8 @@ main {
   cursor: pointer;
 }
 
-.card-header,.card-header-2 {
+.card-header,
+.card-header-2 {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
@@ -90,7 +91,8 @@ main {
 .card-header-2 > div:nth-child(2) {
   width: 60%;
 }
-.card-header img, .card-header-2 img,
+.card-header img,
+.card-header-2 .bank-logo,
 .card-flag {
   width: 32px;
   height: 32px;
@@ -121,13 +123,11 @@ main {
   width: 130px;
 }
 
-
 #card-content > div.card-footer > div.card-expiration > div.expiration-title,
 #card-content > div.card-footer > div:nth-child(1) > div:nth-child(1),
 #card-content > div.card-footer > div.card-flag > span {
   font-size: 1.2rem;
 }
-
 
 #card-content > div.card-footer > div.card-expiration > div.expiration-date,
 #card-content > div.card-footer > div:nth-child(1) > div.card-number > span {
@@ -174,10 +174,11 @@ main {
   width: 600px;
 }
 
-.description-header > span:first-child{
+.description-header > span:first-child {
   width: 600px;
 }
-.description-header > span:nth-child(n+2), span.date{
+.description-header > span:nth-child(n + 2),
+span.date {
   width: 75px;
 }
 
@@ -199,7 +200,7 @@ span.amount {
   border-radius: 6px;
   text-overflow: ellipsis;
   font-family: var(--secondary-font);
-  max-width: 160px;
+  width: fit-content;
 }
 
 .amount {
@@ -216,18 +217,22 @@ span.amount {
   margin-right: 30px;
   align-items: center;
 }
-#status .tag{
+#status .tag {
   display: flex;
   flex-direction: column;
 }
 
 .collapsible-card[aria-expanded="false"] .card-flag {
-  border-left: 1px solid #2935401F;
-  padding-left: 20px;
+  border-left: 1px solid #2935401f;
+  padding-left: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-flag img {
-  width: 40px;
+  width: 44px;
   height: 16px;
 }
 
@@ -246,6 +251,19 @@ span.amount {
   display: flex;
   flex-direction: column;
 }
+.collapsible-card[aria-expanded="true"] .card-flag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-left: 35px;
+}
+
+.collapsible-card[aria-expanded="false"] div.card-flag > span {
+  font-size: 1.2rem;
+  color: var(--tertiary-color);
+}
+
 .collapsible-card[aria-expanded="true"] .card-flag img {
   filter: invert(100%) brightness(407%) contrast(1);
 }
