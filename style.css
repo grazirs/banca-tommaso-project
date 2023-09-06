@@ -58,7 +58,7 @@ main {
   align-items: center;
 }
 
-.collapsible-card[aria-expanded="true"] {
+.collapsible-card[aria-expanded="true"][data-loaded="true"]{
   margin: 24px 0px;
   width: 332px;
   height: 192px;
@@ -68,6 +68,13 @@ main {
   color: var(--secondary-color);
   padding: 20px;
   cursor: pointer;
+}
+.collapsible-card[aria-expanded="true"][data-loaded="false"]{
+  margin: 24px 0px;
+  width: 332px;
+  height: 192px;
+  border-radius: 12px;
+  padding: 20px;
 }
 
 .collapsible-card[aria-expanded="false"] {
@@ -79,6 +86,15 @@ main {
   padding: 20px;
   width: 320px;
   cursor: pointer;
+}
+
+.collapsible-card[aria-expanded="false"][data-loaded="false"] {
+  height: 72px;
+  color: var(--primary-color);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  padding: 20px;
+  width: 320px;
 }
 
 .card-header,
@@ -278,4 +294,45 @@ span.amount {
 
 .collapsible-card[aria-expanded="true"] .card-expiration {
   margin-right: 40px;
+}
+
+
+.skeleton {
+  background: transparent linear-gradient(253deg, #F0EFEF 0%, #F8F8F8 79%, #F0F0F0 91%, #E8E8E8 100%) 0% 0% no-repeat padding-box;
+  border-radius: 16px;
+  animation: loading 2s linear infinite;
+}
+
+.skeleton-date, .skeleton-amount {
+  width: 70px;
+  height: 17px;
+}
+
+.skeleton.skeleton-tag {
+  width: 140px !important;
+  height: 17px;
+}
+
+.skeleton-place {
+  width: 280px;
+  height: 17px;
+}
+
+@keyframes loading {
+
+  0% {
+    background: #E8E8E8;
+  }
+
+  25%{
+    background: #F0F0F0;
+  }
+
+  50%{
+    background: #F8F8F8;
+  }
+
+  100%{
+    background: #F0EFEF;
+  }
 }

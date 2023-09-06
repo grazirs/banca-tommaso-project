@@ -22,7 +22,7 @@ function buildExpandedCard(card) {
   const maskedNumber = card.number.substr(-4);
 
   return `
-  <div class="collapsible-card" role="region" aria-expanded="true">
+  <div class="collapsible-card" role="region" aria-expanded="true" data-loaded="true">
   <div class="card" role="button" aria-controls="card-content" tabindex="0">
     <div class="card-content" id="card-content" aria-hidden="false">
     <div class="card-header">
