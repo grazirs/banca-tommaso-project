@@ -3,6 +3,10 @@ const BASE_URL = 'https://tommaso-bank.netlify.app/.netlify/functions/cards';
 
 const VISA_ICON = './assets/visa.svg';
 const MASTERCARD_ICON = './assets/mastercard.svg';
+
+const SCREEN_HEIGHT = window.innerHeight;
+const HEADER = 130;
+
 let selectedCardID;
 let firstCard;
 let cards = [];
@@ -173,7 +177,7 @@ function buildTransactionsSkeleton(){
 
   let transactionsSkeleton = '';
 
-  for(let i = 0; i < 11; i++){
+  for(let i = 0; i < numberOfSkeletonTransactionRows(); i++){
     transactionsSkeleton +=  `
     <div class="description-content">
     <div class="description">
@@ -200,7 +204,7 @@ function buildCardsSkeleton(){
   </div>
   `;
 
-  for(let i = 0; i < 11; i++){
+  for(let i = 0; i < numberOfSkeletonNotExpandedCards(); i++){
     cardNotExpanded += `
     <div id="collapsible-card" class="collapsible-card skeleton" role="region" aria-expanded="false">
     </div>
@@ -208,4 +212,17 @@ function buildCardsSkeleton(){
   }
 
   return cardsContainer.innerHTML = cardExpanded + cardNotExpanded;
+}
+
+function numberOfSkeletonTransactionRows(){
+  const ROW_HEIGHT= 77;
+  const NUMBER_OF_ROWS = Math.round((SCREEN_HEIGHT  - HEADER) / ROW_HEIGHT);
+  return NUMBER_OF_ROWS;
+}
+
+function numberOfSkeletonNotExpandedCards(){
+  const NOT_EXPANDED_CARD_HEIGHT= 72;
+  const EXPANDED_CARD_HEIGHT= 192;
+  const NUMBER_OF_CARDS = Math.round((SCREEN_HEIGHT - HEADER - EXPANDED_CARD_HEIGHT) / NOT_EXPANDED_CARD_HEIGHT);
+  return NUMBER_OF_CARDS;
 }
