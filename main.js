@@ -98,8 +98,10 @@ function buildNotExpandedCard(card) {
 }
 
 window.addEventListener('load', async function () {
-  cards = await getCards();
+  buildCardsSkeleton();
+  buildTransactionsSkeleton();
 
+  cards = await getCards();
 
   firstCard = cards[0];
   selectedCardID = firstCard.id;;
@@ -124,8 +126,9 @@ function renderCards() {
 
 async function onClickCard(card) {
   selectedCardID = card.id;
-  renderCards()
+  renderCards();
 
+  buildTransactionsSkeleton();
   transactions = await getTransactions(selectedCardID);
   renderTransactions(transactions, card);
 }
@@ -163,4 +166,46 @@ async function renderTransactions(transactions, card) {
   transactions.forEach((transaction) => {
     const builtTransaction = buildTransactions(transaction, card);
     return  transactionsContainer.insertAdjacentHTML('beforeend', builtTransaction)})
+}
+
+function buildTransactionsSkeleton(){
+  const descriptionContent = document.getElementById('description-content');
+
+  let transactionsSkeleton = '';
+
+  for(let i = 0; i < 11; i++){
+    transactionsSkeleton +=  `
+    <div class="description-content">
+    <div class="description">
+      <span class="skeleton skeleton-place"></span>
+      <span class="description-tag skeleton skeleton-tag"></span>
+    </div>
+    <span class="date skeleton skeleton-date"></span>
+    <span class="amount skeleton skeleton-amount"></span>
+  </div>
+  `
+  }
+
+  return descriptionContent.innerHTML = transactionsSkeleton;
+}
+
+function buildCardsSkeleton(){
+  const cardsContainer = document.querySelector('.cards-container');
+  let cardExpanded = "";
+  let cardNotExpanded = "";
+
+  cardExpanded = `
+  <div id="collapsible-card" class="collapsible-card skeleton" role="region" aria-expanded="true"
+  data-loaded="false">
+  </div>
+  `;
+
+  for(let i = 0; i < 11; i++){
+    cardNotExpanded += `
+    <div id="collapsible-card" class="collapsible-card skeleton" role="region" aria-expanded="false">
+    </div>
+    `
+  }
+
+  return cardsContainer.innerHTML = cardExpanded + cardNotExpanded;
 }
