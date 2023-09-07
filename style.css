@@ -26,6 +26,8 @@
 
 body {
   background-color: var(--secondary-bg-color);
+  width: 100%;
+  height: 100vh;
 }
 
 h1 {
@@ -41,6 +43,8 @@ main {
   border-radius: 40px 0px 0px 0px;
   margin: 32px 0 0 32px;
   padding: 42px 28px 28px 0px;
+  overflow-y: auto;
+  height: 100vh;
 }
 
 .container {
@@ -120,7 +124,7 @@ main {
 }
 
 .last-update,
-.date {
+.date{
   font-size: 1.2rem;
 }
 
@@ -146,8 +150,13 @@ main {
 }
 
 #card-content > div.card-footer > div.card-expiration > div.expiration-date,
-#card-content > div.card-footer > div:nth-child(1) > div.card-number > span {
+#card-content > div.card-footer > div:nth-child(1) > div.card-number > span,
+#account-details > div > div > span {
   font-size: 1.4rem;
+}
+
+#account-details > div > div > span {
+  color: var(--tertiary-color);
 }
 
 .description-container {
@@ -197,7 +206,9 @@ main {
 span.date {
   width: 75px;
 }
-
+.description-content span.date {
+  font-size: 1.4rem;
+}
 span.amount {
   width: 90px;
 }
