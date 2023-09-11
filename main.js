@@ -102,6 +102,9 @@ function buildNotExpandedCard(card) {
 }
 
 window.addEventListener('load', async function () {
+  const transactionsContent = document.getElementById('description-content');
+  transactionsContent.onscroll = infiniteScroll;
+
   buildCardsSkeleton();
   buildTransactionsSkeleton();
 
@@ -144,17 +147,13 @@ async function getTransactions(selectedCardID){
 }
 
 function buildTransactions(transaction, card) {
-  const allDescription = transaction.description;
-  const indexAt = allDescription.indexOf("at");
-  const indexUsing = allDescription.indexOf("using", indexAt);
-  const place = allDescription.slice(indexAt + 3, indexUsing).trim();
-  const date = new Date(card.lastUpdateAt).toLocaleDateString();
-  const cardNumber = card.number.substr(-4);
+  const date = new Date(transaction.date).toLocaleDateString();
+  const cardNumber = card.number ? card.number.substr(-4) : '';
 
   return `
   <div class="description-content">
     <div class="description">
-    <span>${place}</span>
+    <span>${transaction.description}</span>
     <span class="description-tag">${card.name} ... ${cardNumber}</span>
   </div>
     <span class="date">${date}</span>
@@ -167,30 +166,48 @@ async function renderTransactions(transactions, card) {
   const transactionsContainer = document.querySelector('#description-content');
   transactionsContainer.innerHTML = '';
 
+  function compareDates(a, b) {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+
+    if (dateA < dateB) {
+      return 1;
+    } else if (dateA > dateB) {
+      return -1;
+    } else {
+      return 0;
+    }
+  }
+
+  transactions.sort(compareDates);
+
   transactions.forEach((transaction) => {
     const builtTransaction = buildTransactions(transaction, card);
-    return  transactionsContainer.insertAdjacentHTML('beforeend', builtTransaction)})
+    return  transactionsContainer.insertAdjacentHTML('beforeend', builtTransaction)
+  })
+}
+
+function skeletonTransactionsHTML(){
+  let transactionsSkeleton = '';
+
+  for (let i = 0; i < numberOfSkeletonTransactionRows(); i++) {
+    transactionsSkeleton +=  `
+      <div class="description-content">
+        <div class="description">
+          <span class="skeleton skeleton-place"></span>
+          <span class="description-tag skeleton skeleton-tag"></span>
+        </div>
+        <span class="date skeleton skeleton-date"></span>
+        <span class="amount skeleton skeleton-amount"></span>
+      </div>
+    `;
+  }
+  return transactionsSkeleton;
 }
 
 function buildTransactionsSkeleton(){
   const descriptionContent = document.getElementById('description-content');
-
-  let transactionsSkeleton = '';
-
-  for(let i = 0; i < numberOfSkeletonTransactionRows(); i++){
-    transactionsSkeleton +=  `
-    <div class="description-content">
-    <div class="description">
-      <span class="skeleton skeleton-place"></span>
-      <span class="description-tag skeleton skeleton-tag"></span>
-    </div>
-    <span class="date skeleton skeleton-date"></span>
-    <span class="amount skeleton skeleton-amount"></span>
-  </div>
-  `
-  }
-
-  return descriptionContent.innerHTML = transactionsSkeleton;
+  return descriptionContent.innerHTML = skeletonTransactionsHTML();
 }
 
 function buildCardsSkeleton(){
@@ -225,4 +242,29 @@ function numberOfSkeletonNotExpandedCards(){
   const EXPANDED_CARD_HEIGHT= 192;
   const NUMBER_OF_CARDS = Math.round((SCREEN_HEIGHT - HEADER - EXPANDED_CARD_HEIGHT) / NOT_EXPANDED_CARD_HEIGHT);
   return NUMBER_OF_CARDS;
+}
+
+async function loadNextGroupOfTransaction(date){
+  const response = await fetch(`${BASE_URL}/transactions/${selectedCardID}?lastTransactionDate=${date}`);
+  const data = await response.json();
+  return data;
+}
+
+async function infiniteScroll() {
+  const transactionsContent = document.getElementById('description-content');
+  const scrollableHeight = transactionsContent.scrollHeight - transactionsContent.clientHeight;
+
+  if (transactionsContent.scrollTop >= scrollableHeight) {
+
+    transactionsContent .insertAdjacentHTML('beforeend', skeletonTransactionsHTML());
+
+    const lastTransaction = transactions[transactions.length - 1];
+    const lastTransactionDate = lastTransaction.date;
+    const newTransactions = await loadNextGroupOfTransaction(lastTransactionDate);
+
+    if (newTransactions.length > 0) {
+      transactions.push(...newTransactions);
+      renderTransactions(transactions, selectedCardID);
+    }
+  }
 }
