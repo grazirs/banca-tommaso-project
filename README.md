@@ -25,3 +25,6 @@ Endpoints:
 3. Implement an infinite scroll on the list of transactions. Every time the user reaches the bottom of the list, you have to load the next group of transactions. To do this, you can add the lastTransactionDate query parameter to the transactions endpoint. You have to pass the date in the ISO 8601 format.
 4. When I click a closed card, the selected one closes, and the clicked one becomes the active one, and its transactions are loaded.
 5. Add a transition when the user selects a card.
+
+### Project Result
+https://banca-tommaso-project.netlify.app/
