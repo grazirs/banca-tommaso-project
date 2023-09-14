@@ -3,10 +3,6 @@ const BASE_URL = 'https://tommaso-bank.netlify.app/.netlify/functions/cards';
 
 const VISA_ICON = './assets/visa.svg';
 const MASTERCARD_ICON = './assets/mastercard.svg';
-
-const SCREEN_HEIGHT = window.innerHeight;
-const HEADER = 130;
-
 let selectedCardID;
 let firstCard;
 let cards = [];
@@ -26,7 +22,7 @@ function buildExpandedCard(card) {
   const maskedNumber = card.number.substr(-4);
 
   return `
-  <div class="collapsible-card" role="region" aria-expanded="true" data-loaded="true">
+  <div class="collapsible-card" role="region" aria-expanded="true">
   <div class="card" role="button" aria-controls="card-content" tabindex="0">
     <div class="card-content" id="card-content" aria-hidden="false">
     <div class="card-header">
@@ -102,10 +98,8 @@ function buildNotExpandedCard(card) {
 }
 
 window.addEventListener('load', async function () {
-  buildCardsSkeleton();
-  buildTransactionsSkeleton();
-
   cards = await getCards();
+
 
   firstCard = cards[0];
   selectedCardID = firstCard.id;;
@@ -130,9 +124,8 @@ function renderCards() {
 
 async function onClickCard(card) {
   selectedCardID = card.id;
-  renderCards();
+  renderCards()
 
-  buildTransactionsSkeleton();
   transactions = await getTransactions(selectedCardID);
   renderTransactions(transactions, card);
 }
@@ -170,59 +163,4 @@ async function renderTransactions(transactions, card) {
   transactions.forEach((transaction) => {
     const builtTransaction = buildTransactions(transaction, card);
     return  transactionsContainer.insertAdjacentHTML('beforeend', builtTransaction)})
-}
-
-function buildTransactionsSkeleton(){
-  const descriptionContent = document.getElementById('description-content');
-
-  let transactionsSkeleton = '';
-
-  for(let i = 0; i < numberOfSkeletonTransactionRows(); i++){
-    transactionsSkeleton +=  `
-    <div class="description-content">
-    <div class="description">
-      <span class="skeleton skeleton-place"></span>
-      <span class="description-tag skeleton skeleton-tag"></span>
-    </div>
-    <span class="date skeleton skeleton-date"></span>
-    <span class="amount skeleton skeleton-amount"></span>
-  </div>
-  `
-  }
-
-  return descriptionContent.innerHTML = transactionsSkeleton;
-}
-
-function buildCardsSkeleton(){
-  const cardsContainer = document.querySelector('.cards-container');
-  let cardExpanded = "";
-  let cardNotExpanded = "";
-
-  cardExpanded = `
-  <div id="collapsible-card" class="collapsible-card skeleton" role="region" aria-expanded="true"
-  data-loaded="false">
-  </div>
-  `;
-
-  for(let i = 0; i < numberOfSkeletonNotExpandedCards(); i++){
-    cardNotExpanded += `
-    <div id="collapsible-card" class="collapsible-card skeleton" role="region" aria-expanded="false">
-    </div>
-    `
-  }
-
-  return cardsContainer.innerHTML = cardExpanded + cardNotExpanded;
-}
-
-function numberOfSkeletonTransactionRows(){
-  const ROW_HEIGHT= 77;
-  const NUMBER_OF_ROWS = Math.round((SCREEN_HEIGHT  - HEADER) / ROW_HEIGHT);
-  return NUMBER_OF_ROWS;
-}
-
-function numberOfSkeletonNotExpandedCards(){
-  const NOT_EXPANDED_CARD_HEIGHT= 72;
-  const EXPANDED_CARD_HEIGHT= 192;
-  const NUMBER_OF_CARDS = Math.round((SCREEN_HEIGHT - HEADER - EXPANDED_CARD_HEIGHT) / NOT_EXPANDED_CARD_HEIGHT);
-  return NUMBER_OF_CARDS;
 }
