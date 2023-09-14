@@ -6,9 +6,9 @@
   --primary-color: #293540;
   --secondary-color: #ffffffbf;
   --tertiary-color: #29354066;
-  --quartenary-color: #293540CC;
+  --quartenary-color: #293540cc;
 
-  --error-color:  #E65454;
+  --error-color: #e65454;
 
   --primary-border: 1px solid #2a355033;
 
@@ -26,6 +26,8 @@
 
 body {
   background-color: var(--secondary-bg-color);
+  width: 100%;
+  height: 100vh;
 }
 
 h1 {
@@ -41,6 +43,8 @@ main {
   border-radius: 40px 0px 0px 0px;
   margin: 32px 0 0 32px;
   padding: 42px 28px 28px 0px;
+  overflow-y: auto;
+  height: 100vh;
 }
 
 .container {
@@ -58,7 +62,7 @@ main {
   align-items: center;
 }
 
-.collapsible-card[aria-expanded="true"] {
+.collapsible-card[aria-expanded="true"][data-loaded="true"]{
   margin: 24px 0px;
   width: 332px;
   height: 192px;
@@ -68,6 +72,13 @@ main {
   color: var(--secondary-color);
   padding: 20px;
   cursor: pointer;
+}
+.collapsible-card[aria-expanded="true"][data-loaded="false"]{
+  margin: 24px 0px;
+  width: 332px;
+  height: 192px;
+  border-radius: 12px;
+  padding: 20px;
 }
 
 .collapsible-card[aria-expanded="false"] {
@@ -81,7 +92,17 @@ main {
   cursor: pointer;
 }
 
-.card-header,.card-header-2 {
+.collapsible-card[aria-expanded="false"][data-loaded="false"] {
+  height: 72px;
+  color: var(--primary-color);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  padding: 20px;
+  width: 320px;
+}
+
+.card-header,
+.card-header-2 {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
@@ -90,7 +111,8 @@ main {
 .card-header-2 > div:nth-child(2) {
   width: 60%;
 }
-.card-header img, .card-header-2 img,
+.card-header img,
+.card-header-2 .bank-logo,
 .card-flag {
   width: 32px;
   height: 32px;
@@ -102,7 +124,7 @@ main {
 }
 
 .last-update,
-.date {
+.date{
   font-size: 1.2rem;
 }
 
@@ -121,17 +143,20 @@ main {
   width: 130px;
 }
 
-
 #card-content > div.card-footer > div.card-expiration > div.expiration-title,
 #card-content > div.card-footer > div:nth-child(1) > div:nth-child(1),
 #card-content > div.card-footer > div.card-flag > span {
   font-size: 1.2rem;
 }
 
-
 #card-content > div.card-footer > div.card-expiration > div.expiration-date,
-#card-content > div.card-footer > div:nth-child(1) > div.card-number > span {
+#card-content > div.card-footer > div:nth-child(1) > div.card-number > span,
+#account-details > div > div > span {
   font-size: 1.4rem;
+}
+
+#account-details > div > div > span {
+  color: var(--tertiary-color);
 }
 
 .description-container {
@@ -174,13 +199,16 @@ main {
   width: 600px;
 }
 
-.description-header > span:first-child{
+.description-header > span:first-child {
   width: 600px;
 }
-.description-header > span:nth-child(n+2), span.date{
+.description-header > span:nth-child(n + 2),
+span.date {
   width: 75px;
 }
-
+.description-content span.date {
+  font-size: 1.4rem;
+}
 span.amount {
   width: 90px;
 }
@@ -199,7 +227,7 @@ span.amount {
   border-radius: 6px;
   text-overflow: ellipsis;
   font-family: var(--secondary-font);
-  max-width: 160px;
+  width: fit-content;
 }
 
 .amount {
@@ -216,18 +244,22 @@ span.amount {
   margin-right: 30px;
   align-items: center;
 }
-#status .tag{
+#status .tag {
   display: flex;
   flex-direction: column;
 }
 
 .collapsible-card[aria-expanded="false"] .card-flag {
-  border-left: 1px solid #2935401F;
-  padding-left: 20px;
+  border-left: 1px solid #2935401f;
+  padding-left: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-flag img {
-  width: 40px;
+  width: 44px;
   height: 16px;
 }
 
@@ -246,6 +278,19 @@ span.amount {
   display: flex;
   flex-direction: column;
 }
+.collapsible-card[aria-expanded="true"] .card-flag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-left: 35px;
+}
+
+.collapsible-card[aria-expanded="false"] div.card-flag > span {
+  font-size: 1.2rem;
+  color: var(--tertiary-color);
+}
+
 .collapsible-card[aria-expanded="true"] .card-flag img {
   filter: invert(100%) brightness(407%) contrast(1);
 }
@@ -260,4 +305,45 @@ span.amount {
 
 .collapsible-card[aria-expanded="true"] .card-expiration {
   margin-right: 40px;
+}
+
+
+.skeleton {
+  background: transparent linear-gradient(253deg, #F0EFEF 0%, #F8F8F8 79%, #F0F0F0 91%, #E8E8E8 100%) 0% 0% no-repeat padding-box;
+  border-radius: 16px;
+  animation: loading 2s linear infinite;
+}
+
+.skeleton-date, .skeleton-amount {
+  width: 70px;
+  height: 17px;
+}
+
+.skeleton.skeleton-tag {
+  width: 140px !important;
+  height: 17px;
+}
+
+.skeleton-place {
+  width: 280px;
+  height: 17px;
+}
+
+@keyframes loading {
+
+  0% {
+    background: #E8E8E8;
+  }
+
+  25%{
+    background: #F0F0F0;
+  }
+
+  50%{
+    background: #F8F8F8;
+  }
+
+  100%{
+    background: #F0EFEF;
+  }
 }
