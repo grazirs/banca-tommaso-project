@@ -7,7 +7,7 @@ const MASTERCARD_ICON = './assets/mastercard.svg';
 const SCREEN_HEIGHT = window.innerHeight;
 const HEADER = 130;
 
-let selectedCardID;
+let selectedCard;
 let firstCard;
 let cards = [];
 let transactions = [];
@@ -19,14 +19,15 @@ async function getCards() {
   return data;
 }
 
-function buildExpandedCard(card) {
+function buildExpandedCard(card, animate) {
   const updateDate = new Date(card.lastUpdateAt).toLocaleDateString();
   const expirationDate = new Date(card.expiration).toLocaleDateString("en-GB", { month: '2-digit', year: 'numeric' });
   const circuitCard = card.circuit === 'MASTERCARD' ? MASTERCARD_ICON : VISA_ICON;
   const maskedNumber = card.number.substr(-4);
+  const animation = animate ? 'expand-card 1s' : 'none';
 
   return `
-  <div class="collapsible-card" role="region" aria-expanded="true" data-loaded="true">
+  <div class="collapsible-card" role="region" aria-expanded="true" data-loaded="true" style="animation:${animation}">
   <div class="card" role="button" aria-controls="card-content" tabindex="0">
     <div class="card-content" id="card-content" aria-hidden="false">
     <div class="card-header">
@@ -61,10 +62,11 @@ function buildExpandedCard(card) {
   `
 }
 
-function buildNotExpandedCard(card) {
+function buildNotExpandedCard(card, isPreviousSelected) {
   const circuitCard = card.circuit === 'MASTERCARD' ? MASTERCARD_ICON : VISA_ICON;
   const maskedNumber = card.number.substr(-4);
 
+  const animation = isPreviousSelected ? 'reduce-card 0.5s' : 'none';
   let cardStatusTag = ``;
 
   if (card.status === "INACTIVE") {
@@ -77,7 +79,7 @@ function buildNotExpandedCard(card) {
   }
 
   return `
-  <div class="collapsible-card" role="region" aria-expanded="false">
+  <div class="collapsible-card" role="region" aria-expanded="false" style="animation: ${animation} ">
   <div class="card" role="button" aria-controls="card-content" tabindex="0">
     <div class="card-content" id="card-content" aria-hidden="false">
       <div class="card-header-2">
@@ -110,20 +112,28 @@ window.addEventListener('load', async function () {
 
   cards = await getCards();
 
-  firstCard = cards[0];
-  selectedCardID = firstCard.id;;
+  selectedCard = cards[0];
 
   renderCards();
 
-  transactions = await getTransactions(selectedCardID);
-  renderTransactions(transactions, firstCard);
+  transactions = await getTransactions(selectedCard);
+  renderTransactions(transactions);
 });
 
-function renderCards() {
+function renderCards(previousSelectedCard) {
   const cardsContainer = document.querySelector('.cards-container');
   cardsContainer.innerHTML = '';
+
   cards.forEach(card => {
-    const built = card.id === selectedCardID ? buildExpandedCard(card) : buildNotExpandedCard(card)
+    let built = '';
+    if(card.id === selectedCard.id){
+      const animate = previousSelectedCard !== undefined;
+      built = buildExpandedCard(card, animate);
+
+    } else {
+      const isPreviousSelected  = card.id === previousSelectedCard?.id;
+      built = buildNotExpandedCard(card, isPreviousSelected);
+    }
     cardsContainer.insertAdjacentHTML('beforeend', built);
     cardsContainer.lastElementChild.addEventListener("click", function(){
       onClickCard(card);
@@ -132,29 +142,29 @@ function renderCards() {
 }
 
 async function onClickCard(card) {
-  selectedCardID = card.id;
-  renderCards();
-
+  const previousSelectedCard = selectedCard;
+  selectedCard = card;
+  renderCards(previousSelectedCard);
   buildTransactionsSkeleton();
-  transactions = await getTransactions(selectedCardID);
-  renderTransactions(transactions, card);
+  transactions = await getTransactions();
+  renderTransactions(transactions);
 }
 
-async function getTransactions(selectedCardID){
-  const response = await fetch(`${BASE_URL}/transactions/${selectedCardID}`)
+async function getTransactions(){
+  const response = await fetch(`${BASE_URL}/transactions/${selectedCard.id}`)
   const data = await response.json();
   return data;
 }
 
-function buildTransactions(transaction, card) {
+function buildTransactions(transaction) {
   const date = new Date(transaction.date).toLocaleDateString();
-  const cardNumber = card.number ? card.number.substr(-4) : '';
+  const cardNumber = selectedCard.number.substr(-4);
 
   return `
   <div class="description-content">
     <div class="description">
     <span>${transaction.description}</span>
-    <span class="description-tag">${card.name} ... ${cardNumber}</span>
+    <span class="description-tag">${selectedCard.name} ... ${cardNumber}</span>
   </div>
     <span class="date">${date}</span>
     <span class="amount">${transaction.amount} €</span>
@@ -162,7 +172,7 @@ function buildTransactions(transaction, card) {
   `;
 }
 
-async function renderTransactions(transactions, card) {
+async function renderTransactions(transactions) {
   const transactionsContainer = document.querySelector('#description-content');
   transactionsContainer.innerHTML = '';
 
@@ -182,7 +192,7 @@ async function renderTransactions(transactions, card) {
   transactions.sort(compareDates);
 
   transactions.forEach((transaction) => {
-    const builtTransaction = buildTransactions(transaction, card);
+    const builtTransaction = buildTransactions(transaction);
     return  transactionsContainer.insertAdjacentHTML('beforeend', builtTransaction)
   })
 }
@@ -245,7 +255,7 @@ function numberOfSkeletonNotExpandedCards(){
 }
 
 async function loadNextGroupOfTransaction(date){
-  const response = await fetch(`${BASE_URL}/transactions/${selectedCardID}?lastTransactionDate=${date}`);
+  const response = await fetch(`${BASE_URL}/transactions/${selectedCard.id}?lastTransactionDate=${date}`);
   const data = await response.json();
   return data;
 }
@@ -264,7 +274,7 @@ async function infiniteScroll() {
 
     if (newTransactions.length > 0) {
       transactions.push(...newTransactions);
-      renderTransactions(transactions, selectedCardID);
+      renderTransactions(transactions);
     }
   }
 }
