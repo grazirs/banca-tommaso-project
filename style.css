@@ -28,7 +28,6 @@ body {
   background-color: var(--secondary-bg-color);
   width: 100%;
   height: 100vh;
-  overflow: hidden;
 }
 
 h1 {
@@ -44,7 +43,8 @@ main {
   border-radius: 40px 0px 0px 0px;
   margin: 32px 0 0 32px;
   padding: 42px 28px 28px 0px;
-  height: 100%;
+  overflow-y: auto;
+  height: 100vh;
 }
 
 .container {
@@ -52,20 +52,18 @@ main {
   justify-content: center;
   align-items: flex-start;
   width: 100%;
+  height: 100%;
 }
-
 .cards-container {
   width: 25%;
-  height: 100vh;
+  justify-content: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-y: scroll;
-  padding-bottom: 110px;
 }
 
 .collapsible-card[aria-expanded="true"][data-loaded="true"]{
-  margin-bottom: 12px;
+  margin: 24px 0px;
   width: 332px;
   height: 192px;
   background: var(--tertiary-bg-color);
@@ -75,7 +73,6 @@ main {
   padding: 20px;
   cursor: pointer;
 }
-
 .collapsible-card[aria-expanded="true"][data-loaded="false"]{
   margin: 24px 0px;
   width: 332px;
@@ -164,15 +161,8 @@ main {
 
 .description-container {
   width: 75%;
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-bottom: 30px;
-}
-
-#description-content {
-  overflow-y: scroll;
-  padding-left: 30px;
 }
 
 .description-header,
@@ -208,12 +198,9 @@ main {
   flex-direction: column;
   width: 600px;
 }
-.description span:first-child::first-letter {
-  text-transform: capitalize;
-}
+
 .description-header > span:first-child {
   width: 600px;
-  padding-left: 30px
 }
 .description-header > span:nth-child(n + 2),
 span.date {
@@ -358,29 +345,5 @@ span.amount {
 
   100%{
     background: #F0EFEF;
-  }
-}
-
-@keyframes expand-card {
-  0% {
-    height: 72px;
-    background: #f4f4f5;
-  }
-
-  100% {
-    height: 192px;
-    background: #1574db;
-  }
-}
-
-@keyframes reduce-card {
-  0% {
-    height: 90px;
-    background: #1574db;
-  }
-
-  100% {
-    height: 72px;
-    background: #f4f4f5;
   }
 }
